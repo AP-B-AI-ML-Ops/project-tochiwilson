@@ -1,0 +1,54 @@
+# =========================
+# 1. Data & Databases
+# =========================
+# Negeer alles in de data map (behalve eventueel een .gitkeep file als je de lege map wilt pushen)
+data/
+*.csv
+*.parquet
+*.db
+*.sqlite3
+
+# =========================
+# 2. Wachtwoorden & Secrets
+# =========================
+# Zorg dat je database wachtwoorden en API keys NOOIT op GitHub belanden!
+.env
+.env.local
+
+# =========================
+# 3. Python & Virtual Environments
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+
+# =========================
+# 4. Machine Learning & MLOps Tools
+# =========================
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# MLflow experiment tracking (lokale opslag)
+mlruns/
+mlartifacts/
+
+# Prefect (orkestratie logs)
+.prefect/
+
+# =========================
+# 5. Testing & Linting
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# 6. IDE's & Besturingssystemen
+# =========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
