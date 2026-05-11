@@ -1,5 +1,6 @@
-pandas
-scikit-learn
-mlflow
-optuna
-prefect
+mlflow==2.16.0
+scikit-learn==1.7.1
+pandas==2.2.2
+numpy==1.26.4
+prefect==3.4.0
+optuna==3.6.1
