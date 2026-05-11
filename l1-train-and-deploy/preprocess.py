@@ -14,15 +14,20 @@ def prepare_data():
     df_merged = pd.merge(df_wind, df_prod, on="tijd", how="inner")
 
     # DEBUG: Laten we kijken wat we nu hebben
-    print(f"--- DEBUG INFO ---")
+    print("--- DEBUG INFO ---")
     print(f"Aantal rijen na de samenvoeging (merge): {len(df_merged)}")
     print("Hoeveel niet-lege (geldige) waardes heeft elke kolom?")
     print(
         df_merged[
-            ["tijd", "geo_windspeed_10m", "ecmwf_windspeed_10m", "elia wind kwh"]
+            [
+                "tijd",
+                "geo_windspeed_10m",
+                "ecmwf_windspeed_10m",
+                "elia wind kwh",
+            ]
         ].count()
     )
-    print(f"------------------\n")
+    print("------------------\n")
 
     # 4. Kies de kolommen met de beste data
     # We proberen nu geo_windspeed_10m omdat ecmwf waarschijnlijk leeg is
@@ -31,7 +36,7 @@ def prepare_data():
     df_clean = df_merged[features_and_target].dropna()
 
     df_clean.to_csv("../data/train_data_wind.csv", index=False)
-    print(f"Eindresultaat opgeschoonde dataset: {len(df_clean)} rijen klaar voor ML!")
+    print(f"opgeschoonde dataset: {len(df_clean)} rijen klaar voor ML!")
 
     return df_clean
 

@@ -32,7 +32,6 @@ def run_train():
 
     # 4. Start de MLflow Tracking
     with mlflow.start_run():
-
         # Train het model
         lr = LinearRegression()
         lr.fit(X_train, y_train)
