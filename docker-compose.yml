@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database (Slaat alle MLflow experimenten veilig op)
+  database:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=mlflow_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  # 2. LABO 02: MLflow Server (Experiment Tracking UI)
+  experiment-tracking:
+    image: python:3.12-slim
+    ports:
+      - "5000:5000"
+    # Installeer mlflow on-the-fly en start de server gekoppeld aan de database
+    command: >
+      bash -c "pip install mlflow psycopg2-binary && 
+      mlflow server --host 0.0.0.0 
+      --backend-store-uri postgresql://admin:admin@database:5432/mlflow_db 
+      --default-artifact-root ./mlruns"
+    depends_on:
+      - database
+
+  # 3. LABO 03: Prefect Server (Orchestration UI)
+  orchestration:
+    image: prefecthq/prefect:2-python3.12
+    command: prefect server start --host 0.0.0.0
+    ports:
+      - "4200:4200"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4200/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # 4. LABO 01: Model Training Service!
+  train-deploy:
+    build: ./l1-train-and-deploy
+    depends_on:
+      orchestration:
+        condition: service_healthy
+      experiment-tracking:
+        condition: service_started
+    volumes:
+      - ./data:/data  # Geeft de container toegang tot je wind_final.csv etc.
+
+volumes:
+  postgres-data:
