@@ -12,32 +12,48 @@ from prefect import task
 
 mlflow.set_tracking_uri("http://localhost:5000")
 
+FEATURES = [
+    "geo_windspeed_10m",
+    "geo_windspeed_30m",
+    "ukkel_windspeed_10m",
+    "maand_sin",
+    "maand_cos",
+    "dag_sin",
+    "dag_cos",
+    "weekdag",
+]
+TARGET = "elia_wind_kwh_gemiddeld"
+
 
 @task
 def run_optimization(data_path: str, num_trials: int):
     mlflow.set_experiment("random-forest-hyperopt")
     mlflow.sklearn.autolog(disable=True)
 
-    # 1. Laad de data en splits deze
-    df = pd.read_csv(os.path.join(data_path, "../data/train_data_wind.csv"))
-    X = df[["geo_windspeed_10m"]]
-    y = df["elia wind kwh"].values
+    # 1. Laad de data
+    df = pd.read_csv(os.path.join(data_path, "train_data_wind.csv"))
 
-    # We gebruiken een vaste random_state voor reproduceerbaarheid
+    # Gebruik alleen aanwezige features, vul ontbrekende waarden op met mediaan
+    available_features = [f for f in FEATURES if f in df.columns]
+    X = df[available_features].fillna(df[available_features].median())
+    y = df[TARGET].values
+
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
 
     def objective(trial):
         params = {
-            "n_estimators": trial.suggest_int("n_estimators", 10, 50, 1),
-            "max_depth": trial.suggest_int("max_depth", 1, 20, 1),
-            "min_samples_split": trial.suggest_int("min_samples_split", 2, 10, 1),
-            "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 4, 1),
+            "n_estimators": trial.suggest_int("n_estimators", 10, 200, step=10),
+            "max_depth": trial.suggest_int("max_depth", 2, 20, step=1),
+            "min_samples_split": trial.suggest_int("min_samples_split", 2, 10, step=1),
+            "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 4, step=1),
+            "max_features": trial.suggest_categorical("max_features", ["sqrt", "log2", None]),
             "random_state": 42,
             "n_jobs": -1,
         }
 
         with mlflow.start_run():
             mlflow.log_params(params)
+            mlflow.log_param("features", available_features)
 
             rf = RandomForestRegressor(**params)
             rf.fit(X_train, y_train)
@@ -52,7 +68,10 @@ def run_optimization(data_path: str, num_trials: int):
     study = optuna.create_study(direction="minimize", sampler=sampler)
     study.optimize(objective, n_trials=num_trials)
 
+    print(f"\nBeste trial: RMSE = {study.best_value:.2f} kWh")
+    print(f"Beste params: {study.best_params}")
+
 
 if __name__ == "__main__":
     print("...optimizing params")
-    run_optimization("../data/", 5)
+    run_optimization("../data/", 20)
