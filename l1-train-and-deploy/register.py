@@ -8,6 +8,8 @@ import mlflow
 from mlflow.tracking import MlflowClient
 from mlflow.entities import ViewType
 
+from prefect import flow, task
+
 HPO_EXPERIMENT_NAME = "random-forest-hyperopt"
 EXPERIMENT_NAME = "random-forest-best-models"
 
@@ -34,6 +36,7 @@ FEATURES = [
 TARGET = "elia_wind_kwh_gemiddeld"
 
 
+@task(log_prints=True)
 def train_and_log_model(params: dict, data_path: str):
     # Configureer MLflow Tracking
     mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000"))
@@ -75,6 +78,7 @@ def train_and_log_model(params: dict, data_path: str):
         mlflow.sklearn.log_model(rf, artifact_path="model")
 
 
+@flow(name="Register Best Model", log_prints=True)
 def run_register_model(data_path: str, top_n: int):
     client = MlflowClient()
 
