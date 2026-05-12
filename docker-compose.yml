@@ -1,4 +1,17 @@
 services:
+  database:
+    build: ./backend-database
+    restart: unless-stopped
+    env_file:
+      - ./backend-database/.env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "admin", "-d", "mlflow_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   experiment-tracking:
     build:
       context: .
@@ -7,7 +20,10 @@ services:
       - "5000:5000"
     volumes:
       - mlflow-artifacts:/mlruns
-  
+    depends_on:
+      database:
+        condition: service_healthy
+
   orchestration:
     build: ./l3-backend-orchestration
     ports:
@@ -29,7 +45,10 @@ services:
       - ./data:/data
       - mlflow-artifacts:/mlruns
     depends_on:
-      - experiment-tracking
+      experiment-tracking:
+        condition: service_started
+      orchestration:
+        condition: service_healthy
 
   web-service:
     build: ./l2-web-service
@@ -58,4 +77,5 @@ services:
         condition: service_healthy
 
 volumes:
+  postgres-data:
   mlflow-artifacts:
