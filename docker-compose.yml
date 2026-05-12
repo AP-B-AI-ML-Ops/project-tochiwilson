@@ -67,6 +67,8 @@ services:
     environment:
       - MLFLOW_TRACKING_URI=http://experiment-tracking:5000
       - PREFECT_API_URL=http://orchestration:4200/api
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
     volumes:
       - ./data:/data
       - mlflow-artifacts:/mlruns
@@ -75,7 +77,18 @@ services:
         condition: service_started
       orchestration:
         condition: service_healthy
+  
+  grafana:
+    image: grafana/grafana
+    restart: unless-stopped
+    ports:
+      - "3400:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - database
 
 volumes:
   postgres-data:
   mlflow-artifacts:
+  grafana-data:
