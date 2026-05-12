@@ -20,5 +20,16 @@ services:
     depends_on:
       - experiment-tracking
 
+  web-service:
+    build: ./l2-web-service
+    ports:
+      - "9696:9696"
+    environment:
+      - MLFLOW_TRACKING_URI=http://experiment-tracking:5000
+    volumes:
+      - mlflow-artifacts:/mlruns
+    depends_on:
+      - experiment-tracking
+
 volumes:
   mlflow-artifacts:
