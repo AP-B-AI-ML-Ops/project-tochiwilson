@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -28,6 +30,10 @@ def read_dataframe(filename: str) -> pd.DataFrame:
 
 
 def run_train(data_path: str = "../data/train_data_wind.csv") -> LinearRegression:
+    # Configureer MLflow Tracking
+    mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000"))
+    mlflow.set_experiment("wind-energy-baseline")
+
     # 1. Laad de gecombineerde data in
     df = read_dataframe(data_path)
 
@@ -53,7 +59,7 @@ def run_train(data_path: str = "../data/train_data_wind.csv") -> LinearRegressio
         mlflow.log_param("train_size", len(X_train))
         mlflow.log_metric("rmse", rmse)
 
-        mlflow.sklearn.log_model(lr, name="wind_energy_model")
+        mlflow.sklearn.log_model(lr, artifact_path="wind_energy_model")
 
     return lr
 

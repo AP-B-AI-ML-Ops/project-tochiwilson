@@ -10,8 +10,6 @@ from sklearn.model_selection import train_test_split
 
 from prefect import task
 
-mlflow.set_tracking_uri("http://localhost:5000")
-
 FEATURES = [
     "geo_windspeed_10m",
     "geo_windspeed_30m",
@@ -27,6 +25,7 @@ TARGET = "elia_wind_kwh_gemiddeld"
 
 @task
 def run_optimization(data_path: str, num_trials: int):
+    mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000"))
     mlflow.set_experiment("random-forest-hyperopt")
     mlflow.sklearn.autolog(disable=True)
 

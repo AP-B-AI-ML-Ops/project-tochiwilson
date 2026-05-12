@@ -8,8 +8,6 @@ import mlflow
 from mlflow.tracking import MlflowClient
 from mlflow.entities import ViewType
 
-from prefect import flow, task
-
 HPO_EXPERIMENT_NAME = "random-forest-hyperopt"
 EXPERIMENT_NAME = "random-forest-best-models"
 
@@ -35,11 +33,11 @@ FEATURES = [
 ]
 TARGET = "elia_wind_kwh_gemiddeld"
 
-mlflow.set_tracking_uri("http://localhost:5000")
 
-
-@task
 def train_and_log_model(params: dict, data_path: str):
+    # Configureer MLflow Tracking
+    mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000"))
+
     # Laad en splits data exact zoals in hpo.py
     df = pd.read_csv(os.path.join(data_path, "train_data_wind.csv"))
 
@@ -74,10 +72,9 @@ def train_and_log_model(params: dict, data_path: str):
         mlflow.log_metric("test_rmse", rmse)
         print(f"  → test RMSE: {rmse:.2f} kWh")
 
-        mlflow.sklearn.log_model(rf, name="model")
+        mlflow.sklearn.log_model(rf, artifact_path="model")
 
 
-@flow
 def run_register_model(data_path: str, top_n: int):
     client = MlflowClient()
 
