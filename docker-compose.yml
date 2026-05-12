@@ -42,5 +42,20 @@ services:
     depends_on:
       - experiment-tracking
 
+  batch-service:
+    build: ./l4-batch-service
+    profiles: ["batch"]
+    environment:
+      - MLFLOW_TRACKING_URI=http://experiment-tracking:5000
+      - PREFECT_API_URL=http://orchestration:4200/api
+    volumes:
+      - ./data:/data
+      - mlflow-artifacts:/mlruns
+    depends_on:
+      experiment-tracking:
+        condition: service_started
+      orchestration:
+        condition: service_healthy
+
 volumes:
   mlflow-artifacts:
