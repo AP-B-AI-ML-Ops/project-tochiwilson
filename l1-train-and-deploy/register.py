@@ -1,14 +1,13 @@
 import os
+
+import mlflow
 import pandas as pd
+from mlflow.entities import ViewType
+from mlflow.tracking import MlflowClient
+from prefect import flow, task
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import root_mean_squared_error
 from sklearn.model_selection import train_test_split
-
-import mlflow
-from mlflow.tracking import MlflowClient
-from mlflow.entities import ViewType
-
-from prefect import flow, task
 
 HPO_EXPERIMENT_NAME = "random-forest-hyperopt"
 EXPERIMENT_NAME = "random-forest-best-models"

@@ -1,17 +1,16 @@
 import os
-import numpy as np
-import pandas as pd
-from datetime import date, timedelta, datetime
-from sklearn.metrics import mean_squared_error
+from datetime import date, datetime, timedelta
 
 import mlflow
+import numpy as np
+import pandas as pd
+from evidently.metric_preset import RegressionPreset
+from evidently.report import Report
 from prefect import flow, task
 from prefect.artifacts import create_markdown_artifact
-
-from evidently.report import Report
-from evidently.metric_preset import RegressionPreset
+from sklearn.metrics import mean_squared_error
 from sqlalchemy import create_engine
-from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy_utils import create_database, database_exists
 
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000")
 MODEL_NAME = "wind-forecaster-best-model"

@@ -1,9 +1,10 @@
 import os
+from datetime import date
+
+import mlflow
 import numpy as np
 import pandas as pd
-import mlflow
-from flask import Flask, request, jsonify
-from datetime import date
+from flask import Flask, jsonify, request
 
 app = Flask("wind-prediction")
 

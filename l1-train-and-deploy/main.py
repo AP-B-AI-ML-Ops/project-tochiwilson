@@ -1,10 +1,10 @@
+from hpo import run_optimization
 from prefect import flow
 
 # Importeer de flows/functies uit je andere bestanden
 from preprocess import prepare_data
-from train import run_train
-from hpo import run_optimization
 from register import run_register_model
+from train import run_train
 
 
 @flow(name="Wind Energy Training Pipeline")

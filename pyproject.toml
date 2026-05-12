@@ -1,2 +1,24 @@
 [tool.black]
 line-length = 100
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.pylint.messages_control]
+disable = [
+    "missing-function-docstring",
+    "missing-class-docstring",
+    "missing-module-docstring",
+    "too-many-locals",
+    "too-many-arguments",
+    "invalid-name",
+    "import-error",
+    "no-name-in-module",
+    "duplicate-code",
+    "import-outside-toplevel",
+    "use-implicit-booleaness-not-comparison",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
