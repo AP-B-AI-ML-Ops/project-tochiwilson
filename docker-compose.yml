@@ -7,13 +7,24 @@ services:
       - "5000:5000"
     volumes:
       - mlflow-artifacts:/mlruns
+  
+  orchestration:
+    build: ./l3-backend-orchestration
+    ports:
+      - "4200:4200"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:4200/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   train-deploy:
     build: ./l1-train-and-deploy
     profiles: ["training"]
     environment:
       - MLFLOW_TRACKING_URI=http://experiment-tracking:5000
-      - PREFECT_API_URL=  # leeg = tijdelijke lokale server
+      - PREFECT_API_URL=http://orchestration:4200/api
     volumes:
       - ./data:/data
       - mlflow-artifacts:/mlruns
