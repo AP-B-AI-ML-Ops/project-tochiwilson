@@ -1,0 +1,1 @@
+-- Database wordt automatisch aangemaakt via POSTGRES_DB in .env
