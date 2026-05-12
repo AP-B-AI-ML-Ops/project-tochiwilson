@@ -1,34 +1,54 @@
-import mlflow
+import os
+import numpy as np
 import pandas as pd
+import mlflow
 from flask import Flask, request, jsonify
+from datetime import date
 
 app = Flask("wind-prediction")
 
-# Verbind met de MLflow container (let op de docker netwerk naam)
-# mlflow.set_tracking_uri("http://experiment-tracking:5000")
-mlflow.set_tracking_uri("http://localhost:5000")
-
-# Laad versie 1 van je zojuist geregistreerde Random Forest model
+mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000"))
 model = mlflow.pyfunc.load_model("models:/wind-forecaster-best-model/1")
+
+FEATURES = [
+    "geo_windspeed_10m",
+    "geo_windspeed_30m",
+    "ukkel_windspeed_10m",
+    "maand_sin",
+    "maand_cos",
+    "dag_sin",
+    "dag_cos",
+    "weekdag",
+]
+
+
+def build_features(data: dict) -> pd.DataFrame:
+    d = date.fromisoformat(data["datum"])
+    doy = d.timetuple().tm_yday
+    m = d.month
+
+    row = {
+        "geo_windspeed_10m": data["geo_windspeed_10m"],
+        "geo_windspeed_30m": data.get("geo_windspeed_30m", 0),
+        "ukkel_windspeed_10m": data.get("ukkel_windspeed_10m", 0),
+        "maand_sin": np.sin(2 * np.pi * m / 12),
+        "maand_cos": np.cos(2 * np.pi * m / 12),
+        "dag_sin": np.sin(2 * np.pi * doy / 365),
+        "dag_cos": np.cos(2 * np.pi * doy / 365),
+        "weekdag": d.weekday(),
+    }
+    return pd.DataFrame([row])[FEATURES]
 
 
 @app.route("/predict", methods=["POST"])
 def predict_endpoint():
-    # 1. Haal de JSON data op die de gebruiker verstuurt
-    forecast = request.get_json()
-
-    # 2. Zet de input om naar een Pandas DataFrame
-    # Het model is namelijk getraind op een DataFrame met deze specifieke kolom
-    features = {"geo_windspeed_10m": [forecast["geo_windspeed_10m"]]}
-    df_features = pd.DataFrame(features)
-
-    # 3. Voorspel de opbrengst
-    predictions = model.predict(df_features)
-    current_prediction = float(predictions[0])
-
-    # 4. Format het antwoord
-    result = {"predicted_production_kwh": current_prediction}
-
+    data = request.get_json()
+    df_features = build_features(data)
+    prediction = model.predict(df_features)
+    result = {
+        "predicted_kwh": round(float(prediction[0]), 2),
+        "predicted_mwh": round(float(prediction[0]) / 1000, 3),
+    }
     return jsonify(result)
 
 
