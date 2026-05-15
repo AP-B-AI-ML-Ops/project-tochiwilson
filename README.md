@@ -140,3 +140,57 @@ All dependencies are pinned per service:
 | `l1-train-and-deploy` | mlflow==2.16.0, scikit-learn==1.7.1, prefect==3.4.0, optuna==3.6.1 |
 | `l2-web-service` | flask==3.0.3, mlflow==2.16.0, scikit-learn==1.7.1 |
 | `l4-batch-service` | mlflow==2.16.0, scikit-learn==1.4.2, evidently==0.4.30, prefect==3.4.0 |
+
+---
+
+## Screenshots
+
+### MLflow — Experiment Tracking
+
+#### Experiments overzicht
+![MLflow Experiments](screenshots/mlflow_experiments.png)
+
+#### Baseline model (Linear Regression)
+![MLflow Baseline](screenshots/mlflow_baseline_run.png)
+
+#### Hyperparameter optimalisatie — beste run
+![MLflow HPO](screenshots/mlflow_best_hpo_run.png)
+
+#### Beste model run
+![MLflow Best Model](screenshots/mlflow_best_model_run.png)
+
+#### Batch monitoring
+![MLflow Batch Monitoring](screenshots/mlflow_batch_monitoring_run.png)
+
+---
+
+### Prefect — Workflow Orchestration
+
+#### Flow runs overzicht
+![Prefect Flow Runs](screenshots/prefect_flow_runs.png)
+
+#### Training pipeline detail
+![Prefect Training Flow](screenshots/prefect_training_flow.png)
+
+#### Batch service detail
+![Prefect Batch Flow](screenshots/prefect_batch_flow.png)
+
+#### Batch monitoring artifact
+![Prefect Artifact](screenshots/prefect_batch_artifact.png)
+
+#### Deployments
+![Prefect Deployments](screenshots/prefect_deployments.png)
+
+---
+
+### Grafana — Model Monitoring
+
+#### Dashboard overzicht
+![Grafana Dashboard](screenshots/grafana_dashboard.png)
+
+---
+
+### Web Service — REST API
+
+#### Voorspelling via curl
+![Web Service](screenshots/webservice_prediction.png)
