@@ -1,7 +1,6 @@
 services:
   database:
     build: ./backend-database
-    restart: unless-stopped
     env_file:
       - ./backend-database/.env
     volumes:
