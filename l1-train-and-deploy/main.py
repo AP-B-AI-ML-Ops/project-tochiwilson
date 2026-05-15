@@ -16,8 +16,8 @@ def training_flow():
     run_train()
 
     # 3. Zoek naar de beste Random Forest parameters
-    # Zoek 5 combinaties, en geef aan waar de data staat
-    run_optimization("../data/", 5)
+    # Zoek 20 combinaties, en geef aan waar de data staat
+    run_optimization("../data/", 20)
 
     # 4. Registreer het beste model
     run_register_model("../data/", 5)
