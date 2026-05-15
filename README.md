@@ -80,17 +80,20 @@ curl -X POST http://localhost:9696/predict \
 ```
 
 ### 3. Batch Service (`l4-batch-service`)
-A scheduled Prefect pipeline that:
+A scheduled Prefect pipeline that runs automatically every day at 6:00 AM:
 1. Fetches recent weather forecasts
 2. Runs inference with the registered model
 3. Compares predictions against Elia actuals
-4. Generates an Evidently HTML performance report
-5. Stores metrics in PostgreSQL
+4. Generates an Evidently HTML performance report in `data/batch_results/`
+5. Stores metrics in PostgreSQL for Grafana visualization
 6. Triggers retraining if RMSE exceeds 150,000 kWh
 
+The batch service starts automatically with the infrastructure:
 ```bash
-docker compose --profile batch run --rm batch-service
+docker compose up database experiment-tracking orchestration grafana batch-service
 ```
+
+To trigger manually from the Prefect UI: go to `http://localhost:4200/deployments` and click **Run** on `wind-energy-batch-daily`.
 
 ### 4. Monitoring
 - **Evidently** — HTML regression performance reports saved to `data/batch_results/`
@@ -118,8 +121,8 @@ docker compose --profile training run --rm train-deploy
 # 3. Start the web service
 docker compose up web-service
 
-# 4. Run batch monitoring
-docker compose --profile batch run --rm batch-service
+# 4. Start batch service (runs automatically daily at 6:00)
+docker compose up batch-service
 ```
 
 ### Running Tests
