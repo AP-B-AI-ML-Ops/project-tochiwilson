@@ -125,6 +125,21 @@ docker compose up web-service
 docker compose up batch-service
 ```
 
+### Makefile shortcuts
+
+```bash
+make help     # Toon alle beschikbare commando's
+make build    # Bouw alle Docker images
+make up       # Start de infrastructuur
+make train    # Train het model
+make serve    # Start de web service
+make batch    # Start de batch service
+make test     # Run unit tests
+make lint     # Run pre-commit hooks
+make all      # Start alle services tegelijk
+make down     # Stop alle containers
+```
+
 ### Running Tests
 
 ```bash
