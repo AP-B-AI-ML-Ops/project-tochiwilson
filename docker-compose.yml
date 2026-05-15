@@ -62,7 +62,6 @@ services:
 
   batch-service:
     build: ./l4-batch-service
-    profiles: ["batch"]
     env_file:
       - .env
     volumes:
@@ -73,6 +72,7 @@ services:
         condition: service_started
       orchestration:
         condition: service_healthy
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana

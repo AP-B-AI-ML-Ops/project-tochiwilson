@@ -246,4 +246,7 @@ def batch_flow(
 
 
 if __name__ == "__main__":
-    batch_flow()
+    batch_flow.serve(
+        name="wind-energy-batch-daily",
+        cron="0 6 * * *",  # elke dag om 6:00
+    )
