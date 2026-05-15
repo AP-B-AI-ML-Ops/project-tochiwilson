@@ -38,9 +38,8 @@ services:
   train-deploy:
     build: ./l1-train-and-deploy
     profiles: ["training"]
-    environment:
-      - MLFLOW_TRACKING_URI=http://experiment-tracking:5000
-      - PREFECT_API_URL=http://orchestration:4200/api
+    env_file:
+      - .env
     volumes:
       - ./data:/data
       - mlflow-artifacts:/mlruns
@@ -54,8 +53,8 @@ services:
     build: ./l2-web-service
     ports:
       - "9696:9696"
-    environment:
-      - MLFLOW_TRACKING_URI=http://experiment-tracking:5000
+    env_file:
+      - .env
     volumes:
       - mlflow-artifacts:/mlruns
     depends_on:
@@ -64,11 +63,8 @@ services:
   batch-service:
     build: ./l4-batch-service
     profiles: ["batch"]
-    environment:
-      - MLFLOW_TRACKING_URI=http://experiment-tracking:5000
-      - PREFECT_API_URL=http://orchestration:4200/api
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
+    env_file:
+      - .env
     volumes:
       - ./data:/data
       - mlflow-artifacts:/mlruns
