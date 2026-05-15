@@ -1,4 +1,4 @@
-.PHONY: help build up down train serve batch test lint
+.PHONY: help build up down train serve batch test lint all
 
 help:
 	@echo "Beschikbare commando's:"
@@ -7,9 +7,10 @@ help:
 	@echo "  make down     - Stop alle containers"
 	@echo "  make train    - Train het model"
 	@echo "  make serve    - Start de web service"
-	@echo "  make batch    - Run de batch service"
+	@echo "  make batch    - Start de batch service (scheduled)"
 	@echo "  make test     - Run unit tests"
 	@echo "  make lint     - Run pre-commit hooks"
+	@echo "  make all      - Start alle services"
 
 build:
 	docker compose build
@@ -27,10 +28,13 @@ serve:
 	docker compose up web-service
 
 batch:
-	docker compose --profile batch run --rm batch-service
+	docker compose up batch-service
 
 test:
 	pytest tests/ -v
 
 lint:
 	pre-commit run --all-files
+
+all:
+	docker compose up database experiment-tracking orchestration grafana batch-service
