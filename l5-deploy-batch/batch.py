@@ -42,14 +42,14 @@ def save_metrics_to_db(metrics_df: pd.DataFrame):
     ensure_database_exists(DB_URI)
     engine = create_engine(DB_URI)
     metrics_df.to_sql("evidently_metrics", engine, if_exists="append", index=False)
-    print("💾 Metrics opgeslagen in database")
+    print(" Metrics opgeslagen in database")
 
 
 @task(log_prints=True)
 def load_model():
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     model = mlflow.pyfunc.load_model(f"models:/{MODEL_NAME}/{MODEL_VERSION}")
-    print(f"✅ Model geladen: {MODEL_NAME} v{MODEL_VERSION}")
+    print(f" Model geladen: {MODEL_NAME} v{MODEL_VERSION}")
     return model
 
 
@@ -67,7 +67,7 @@ def fetch_weather_forecast(wind_path: str, prod_path: str) -> pd.DataFrame:
     cutoff = prod_max - timedelta(days=7)
     forecast = df_wind[(df_wind["dag"] >= cutoff) & (df_wind["dag"] <= prod_max)].copy()
 
-    print(f"📡 Weerforecast opgehaald: {len(forecast)} dagen (tot {prod_max.date()})")
+    print(f" Weerforecast opgehaald: {len(forecast)} dagen (tot {prod_max.date()})")
     return forecast
 
 
@@ -97,7 +97,7 @@ def run_inference(model, df: pd.DataFrame) -> pd.DataFrame:
     results = df[["dag"]].copy()
     results["predicted_kwh"] = predictions
     results["predicted_mwh"] = predictions / 1000
-    print(f"🔮 Voorspellingen gemaakt voor {len(results)} dagen")
+    print(f" Voorspellingen gemaakt voor {len(results)} dagen")
     return results
 
 
@@ -109,21 +109,21 @@ def fetch_actuals(prod_path: str, predictions: pd.DataFrame) -> pd.DataFrame:
     actuals = prod.groupby("dag").agg(actual_kwh=("elia wind kwh", "mean")).reset_index()
     merged = pd.merge(predictions, actuals, on="dag", how="inner")
     merged = merged.dropna(subset=["actual_kwh", "predicted_kwh"])
-    print(f"✅ Actuals gevonden voor {len(merged)} van {len(predictions)} dagen")
+    print(f" Actuals gevonden voor {len(merged)} van {len(predictions)} dagen")
     return merged
 
 
 @task(log_prints=True)
 def compute_and_log_metrics(df: pd.DataFrame) -> dict:
     if len(df) == 0:
-        print("⚠️  Geen overlap tussen voorspellingen en actuals")
+        print("  Geen overlap tussen voorspellingen en actuals")
         return {}
 
     rmse = float(np.sqrt(mean_squared_error(df["actual_kwh"], df["predicted_kwh"])))
     mae = float(np.mean(np.abs(df["actual_kwh"] - df["predicted_kwh"])))
     mape = float(np.mean(np.abs((df["actual_kwh"] - df["predicted_kwh"]) / df["actual_kwh"])) * 100)
 
-    print("\n📊 Batch metrics:")
+    print("\n Batch metrics:")
     print(f"   RMSE: {rmse:,.0f} kWh")
     print(f"   MAE:  {mae:,.0f} kWh")
     print(f"   MAPE: {mape:.1f}%")
@@ -192,7 +192,7 @@ def compute_and_log_metrics(df: pd.DataFrame) -> dict:
 | Dagen  | {len(df)} |
 
 ## Retraining drempel: {RMSE_THRESHOLD:,.0f} kWh
-## Status: {"🔴 RETRAINING NODIG" if rmse > RMSE_THRESHOLD else "🟢 OK"}
+## Status: {" RETRAINING NODIG" if rmse > RMSE_THRESHOLD else " OK"}
 """,
     )
     return {"rmse": rmse, "mae": mae, "mape": mape}
@@ -204,9 +204,9 @@ def check_retraining_needed(metrics: dict) -> bool:
         return False
     rmse = metrics.get("rmse", 0)
     if rmse > RMSE_THRESHOLD:
-        print(f"🔴 RMSE {rmse:,.0f} > drempel {RMSE_THRESHOLD:,.0f} — retraining triggeren!")
+        print(f" RMSE {rmse:,.0f} > drempel {RMSE_THRESHOLD:,.0f} — retraining triggeren!")
         return True
-    print(f"🟢 RMSE {rmse:,.0f} onder drempel {RMSE_THRESHOLD:,.0f} — geen retraining nodig")
+    print(f" RMSE {rmse:,.0f} onder drempel {RMSE_THRESHOLD:,.0f} — geen retraining nodig")
     return False
 
 
@@ -215,7 +215,7 @@ def trigger_retraining():
     """Triggert de training pipeline opnieuw via Prefect."""
     import subprocess
 
-    print("🔄 Retraining gestart...")
+    print(" Retraining gestart...")
     subprocess.run(["python", "/app/retrain.py"], check=True)
 
 
@@ -224,7 +224,7 @@ def save_predictions(df: pd.DataFrame, output_path: str):
     os.makedirs(output_path, exist_ok=True)
     pred_file = os.path.join(output_path, f"predictions_{date.today()}.csv")
     df.to_csv(pred_file, index=False)
-    print(f"💾 Opgeslagen: {pred_file}")
+    print(f" Opgeslagen: {pred_file}")
 
 
 @flow(name="Wind Energy Batch Service", log_prints=True)

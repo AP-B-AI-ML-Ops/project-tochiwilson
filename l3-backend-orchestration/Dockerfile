@@ -1,6 +1,7 @@
 FROM python:3.11-slim
 
 RUN pip install -U pip setuptools wheel
+
 WORKDIR /prefect
 
 RUN pip install pendulum prefect --upgrade

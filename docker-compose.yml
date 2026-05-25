@@ -1,8 +1,8 @@
 services:
   database:
-    build: ./backend-database
+    build: ./database
     env_file:
-      - ./backend-database/.env
+      - ./database/.env
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -13,8 +13,7 @@ services:
 
   experiment-tracking:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ./l2-backend-experiment-tracking
     ports:
       - "5000:5000"
     volumes:
@@ -49,7 +48,7 @@ services:
         condition: service_healthy
 
   web-service:
-    build: ./l2-web-service
+    build: ./l4-deploy-web-api
     ports:
       - "9696:9696"
     env_file:
@@ -60,7 +59,7 @@ services:
       - experiment-tracking
 
   batch-service:
-    build: ./l4-batch-service
+    build: ./l5-deploy-batch
     env_file:
       - .env
     volumes:
@@ -80,10 +79,16 @@ services:
       - "3400:3000"
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
     depends_on:
-      - database
+      database:
+        condition: service_healthy
 
 volumes:
   postgres-data:
   mlflow-artifacts:
   grafana-data:
+  grafana-data-config-datasources:
+  grafana-data-config-dashboards:
+  grafana-data-dashboards:

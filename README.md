@@ -14,6 +14,8 @@ The wind dataset contains daily wind speed measurements from multiple stations (
 
 **Preprocessing strategy:** Since wind data is daily and production data is hourly, production is aggregated to daily averages before merging. Cyclical features (sin/cos encoding) are added for month and day of year to capture seasonal patterns.
 
+**Train/Test Split:** The dataset is split chronologically to prevent data leakage, ensuring the model learns from past patterns to predict future energy production.
+
 ### New Data for Inference
 The web service accepts live weather forecast data as JSON input. In production, this would come from the ECMWF API (Open-Meteo), which provides multi-day ahead hourly forecasts — allowing real predictions, not just backtests.
 
@@ -127,6 +129,8 @@ docker compose up batch-service
 
 ### Makefile shortcuts
 
+> **Note for Windows users:** If the `make` command is not available, use WSL, Git Bash, or run the raw Docker commands listed above.
+
 ```bash
 make help     # Toon alle beschikbare commando's
 make build    # Bouw alle Docker images
@@ -160,6 +164,17 @@ All dependencies are pinned per service:
 | `l4-batch-service` | mlflow==2.16.0, scikit-learn==1.4.2, evidently==0.4.30, prefect==3.4.0 |
 
 ---
+
+## DevOps Best Practices Applied
+
+To adhere to strict MLOps guidelines, the following practices were implemented:
+
+* **Automated Testing:** Unit tests are implemented using `pytest` to validate feature engineering and data transformations in isolation.
+* **Code Quality:** Pre-commit hooks (Black, isort, flake8, pylint) are configured to automatically enforce PEP8 coding guidelines before any git commit.
+* **Experiment Tracking:** All model training runs are tracked in MLflow with parameters, metrics and artifacts logged automatically.
+* **Model Registry:** The best model is registered and versioned in the MLflow model registry.
+* **Containerization:** All services are containerized with Docker and orchestrated via Docker Compose.
+* **Scheduled Pipelines:** The batch service runs on a daily Prefect schedule with automatic retraining trigger.
 
 ## Screenshots
 
