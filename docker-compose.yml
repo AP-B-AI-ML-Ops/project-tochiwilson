@@ -79,8 +79,6 @@ services:
       - "3400:3000"
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
-      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
     depends_on:
       database:
         condition: service_healthy
@@ -89,6 +87,3 @@ volumes:
   postgres-data:
   mlflow-artifacts:
   grafana-data:
-  grafana-data-config-datasources:
-  grafana-data-config-dashboards:
-  grafana-data-dashboards:
