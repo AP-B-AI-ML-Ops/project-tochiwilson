@@ -68,7 +68,21 @@ Orchestrated with Prefect, tracked with MLflow:
 docker compose --profile training run --rm train-deploy
 ```
 
-### 2. Web Service (`l2-web-service`)
+### 2. Experiment Tracking Backend (`l2-backend-experiment-tracking`)
+MLflow backend for experiment tracking and artifact storage.
+
+```bash
+docker compose up experiment-tracking
+```
+
+### 3. Orchestration Backend (`l3-backend-orchestration`)
+Prefect orchestration backend for scheduling and managing flows.
+
+```bash
+docker compose up orchestration
+```
+
+### 4. Web API (`l4-deploy-web-api`)
 A Flask REST API that loads the registered model and returns predictions on demand.
 
 ```bash
@@ -81,7 +95,7 @@ curl -X POST http://localhost:9696/predict \
   -d '{"datum": "2026-05-12", "geo_windspeed_10m": 4.5, "geo_windspeed_30m": 5.2}'
 ```
 
-### 3. Batch Service (`l4-batch-service`)
+### 5. Batch Service (`l5-deploy-batch`)
 A scheduled Prefect pipeline that runs automatically every day at 6:00 AM:
 1. Fetches recent weather forecasts
 2. Runs inference with the registered model
@@ -97,7 +111,7 @@ docker compose up database experiment-tracking orchestration grafana batch-servi
 
 To trigger manually from the Prefect UI: go to `http://localhost:4200/deployments` and click **Run** on `wind-energy-batch-daily`.
 
-### 4. Monitoring
+### 6. Monitoring
 - **Evidently** — HTML regression performance reports saved to `data/batch_results/`
 - **Grafana** — real-time dashboard at `http://localhost:3400` showing RMSE over time
 - **MLflow** — experiment tracking at `http://localhost:5000`
@@ -160,8 +174,10 @@ All dependencies are pinned per service:
 | Service | Key dependencies |
 |---|---|
 | `l1-train-and-deploy` | mlflow==2.16.0, scikit-learn==1.7.1, prefect==3.4.0, optuna==3.6.1 |
-| `l2-web-service` | flask==3.0.3, mlflow==2.16.0, scikit-learn==1.7.1 |
-| `l4-batch-service` | mlflow==2.16.0, scikit-learn==1.4.2, evidently==0.4.30, prefect==3.4.0 |
+| `l2-backend-experiment-tracking` | mlflow==2.16.0, scikit-learn==1.7.1 |
+| `l3-backend-orchestration` | prefect==3.4.0 |
+| `l4-deploy-web-api` | flask==3.0.3, mlflow==2.16.0, scikit-learn==1.7.1 |
+| `l5-deploy-batch` | mlflow==2.16.0, scikit-learn==1.4.2, evidently==0.4.30, prefect==3.4.0 |
 
 ---
 
