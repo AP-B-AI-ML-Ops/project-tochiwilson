@@ -61,7 +61,7 @@ Orchestrated with Prefect, tracked with MLflow:
 
 1. **Preprocess** — merge wind + production data, add seasonal features
 2. **Train** — Linear Regression baseline, logged to MLflow
-3. **HPO** — Random Forest hyperparameter optimization with Optuna (5 trials)
+3. **HPO** — Random Forest hyperparameter optimization with Optuna (20 trials)
 4. **Register** — best model registered in MLflow model registry
 
 ```bash
