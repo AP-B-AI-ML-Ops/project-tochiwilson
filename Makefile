@@ -10,7 +10,7 @@ help:
 	@echo "  make batch    - Start de batch service (scheduled)"
 	@echo "  make test     - Run unit tests"
 	@echo "  make lint     - Run pre-commit hooks"
-	@echo "  make all      - Start alle services"
+	@echo "  make all      - Start database, MLflow, Prefect, Grafana en batch-service"
 
 build:
 	docker compose build

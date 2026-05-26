@@ -154,9 +154,11 @@ make serve    # Start de web service
 make batch    # Start de batch service
 make test     # Run unit tests
 make lint     # Run pre-commit hooks
-make all      # Start alle services tegelijk
+make all      # Start database, MLflow, Prefect, Grafana en batch-service
 make down     # Stop alle containers
 ```
+
+> `make all` start dus niet de training job of de web API; daarvoor gebruik je `make train` en `make serve` apart.
 
 ### Running Tests
 
